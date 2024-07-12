@@ -2,10 +2,10 @@ const User = require('../models/User');
 const { performPayment } = require('../services/tokenService');
 
 exports.createTransaction = async (req, res) => {
-  const { senderSecretKey, email, amount } = req.body;
+  const { senderEmail, email, amount } = req.body;
 
   try {
-    if (!senderSecretKey || !email || !amount) {
+    if (!senderEmail || !email || !amount) {
       return res.status(400).json({ error: 'Missing required parameters' });
     }
 
@@ -15,11 +15,18 @@ exports.createTransaction = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: 'Reciever user not found' });
     }
 
     const receiverPublicKey = user.wallet.publicKey;
     const receiverSecretKey = user.wallet.secret;
+
+    console.log(senderEmail);
+    const senderUser = await User.findOne({ email:senderEmail });
+    if (!senderUser) {
+      return res.status(404).json({ error: 'Sender user not found' });
+    }
+    const senderSecretKey = senderUser.wallet.secret;
 
     try {
       const transactionResult = await performPayment(senderSecretKey, receiverPublicKey, receiverSecretKey, amount);
