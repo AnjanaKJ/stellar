@@ -4,8 +4,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const userRoute = require('./routes/userRoute');
-const buytokenRoute = require('./routes/buytokenRoute');
-const transactionRoute = require('./routes/transactionRoute');
+const tokenRoute = require('./routes/tokenRoute');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,8 +18,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/users', userRoute);
-app.use('/api/token', buytokenRoute);
-app.use('/api', transactionRoute);
+app.use('/api/token', tokenRoute);
 
 mongoose.connect('mongodb://127.0.0.1:27017/stellar', {
   useNewUrlParser: true,
