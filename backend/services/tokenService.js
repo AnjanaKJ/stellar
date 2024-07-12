@@ -13,7 +13,6 @@ const issuerSecretKey = process.env.ISSUER_SECRET_KEY;
 const assetCode = 'BRIC';
 const bricAsset = new StellarSdk.Asset(assetCode, issuerPublicKey);
 
-
 function validateKeypair(secretKey, type) {
     try {
         StellarSdk.Keypair.fromSecret(secretKey);
@@ -28,7 +27,7 @@ validateKeypair(distributorSecretKey, 'Distributor');
 validateKeypair(issuerSecretKey, 'Issuer');
 
 
-async function buyBRICToken(userPublicKey, userSecretKey, amount) {
+async function buyBRICToken(userPublicKey, userSecretKey, bricAmount) {
     try {
 
         try {
@@ -79,22 +78,48 @@ async function buyBRICToken(userPublicKey, userSecretKey, amount) {
             userAccount = await server.loadAccount(userPublicKey);
         }
 
-        const transaction = new StellarSdk.TransactionBuilder(distributorAccount, {
+        const exchangeRate = 0.1; // exchange rate
+        const xlmAmount = (bricAmount * exchangeRate).toString();
+
+        // Perform the payment operation: user sends XLM to distributor, distributor sends BRIC to user
+        const paymentTransaction = new StellarSdk.TransactionBuilder(userAccount, {
+            fee: StellarSdk.BASE_FEE,
+            networkPassphrase: networkPassphrase,
+        })
+            .addOperation(StellarSdk.Operation.payment({
+                destination: distributorPublicKey,
+                asset: StellarSdk.Asset.native(),
+                amount: xlmAmount,
+            }))
+            .setTimeout(100)
+            .build();
+
+        paymentTransaction.sign(StellarSdk.Keypair.fromSecret(userSecretKey));
+
+        try {
+            const paymentResult = await server.submitTransaction(paymentTransaction);
+            console.log('XLM payment to distributor successful.');
+        } catch (error) {
+            console.error('Error during XLM payment:', error.response ? error.response.data : error.message);
+            return;
+        }
+
+        const bricTransaction = new StellarSdk.TransactionBuilder(distributorAccount, {
             fee: StellarSdk.BASE_FEE,
             networkPassphrase: networkPassphrase,
         })
             .addOperation(StellarSdk.Operation.payment({
                 destination: userPublicKey,
                 asset: bricAsset,
-                amount: amount.toString(),
+                amount: bricAmount.toString(),
             }))
             .setTimeout(100)
             .build();
 
-        transaction.sign(StellarSdk.Keypair.fromSecret(distributorSecretKey));
+        bricTransaction.sign(StellarSdk.Keypair.fromSecret(distributorSecretKey));
 
-        const result = await server.submitTransaction(transaction);
-        console.log('BRIC token purchased.');
+        const result = await server.submitTransaction(bricTransaction);
+        console.log('BRIC token purchased successfully.');
     } catch (error) {
         console.error('Error purchasing BRIC token:', error.response ? error.response.data : error.message);
         if (error.response && error.response.data && error.response.data.extras) {
