@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const userRoute = require('./routes/userRoute');
 const tokenRoute = require('./routes/tokenRoute');
-//const stockRoute = require('./routes/stockRoute');
+const stockRoute = require('./routes/stockRoute');
 const emailRoute = require('./routes/emailRoute');
 const CompanyStock = require('./models/CompanyStock');
 
@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoute);
 app.use('/api/token', tokenRoute);
 app.use('/api/users', emailRoute);
-//app.use('/api/stock', stockRoute);
+app.use('/api/stock', stockRoute);
 
 mongoose.connect('mongodb://127.0.0.1:27017/stellar', {
   useNewUrlParser: true,
