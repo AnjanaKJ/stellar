@@ -7,6 +7,7 @@ const userRoute = require('./routes/userRoute');
 const tokenRoute = require('./routes/tokenRoute');
 const stockRoute = require('./routes/stockRoute');
 const emailRoute = require('./routes/emailRoute');
+const companyRoute = require('./routes/companyRoute');
 const CompanyStock = require('./models/CompanyStock');
 
 const app = express();
@@ -24,6 +25,7 @@ app.use('/api/users', userRoute);
 app.use('/api/token', tokenRoute);
 app.use('/api/users', emailRoute);
 app.use('/api/stock', stockRoute);
+app.use('/api/list', companyRoute);
 
 mongoose.connect('mongodb://127.0.0.1:27017/stellar', {
   useNewUrlParser: true,
