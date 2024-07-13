@@ -5,6 +5,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const userRoute = require('./routes/userRoute');
 const tokenRoute = require('./routes/tokenRoute');
+//const stockRoute = require('./routes/stockRoute');
+const emailRoute = require('./routes/emailRoute');
+const CompanyStock = require('./models/CompanyStock');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,6 +22,8 @@ app.get('/', (req, res) => {
 
 app.use('/api/users', userRoute);
 app.use('/api/token', tokenRoute);
+app.use('/api/users', emailRoute);
+//app.use('/api/stock', stockRoute);
 
 mongoose.connect('mongodb://127.0.0.1:27017/stellar', {
   useNewUrlParser: true,
@@ -26,6 +31,20 @@ mongoose.connect('mongodb://127.0.0.1:27017/stellar', {
 })
 .then(() => {
   console.log('Connected to MongoDB');
+  async function insertCompanyStock(name, publicKey, stocks) {
+    try {
+        const company = new CompanyStock({
+            name: name,
+            publicKey: publicKey,
+            stocks: stocks
+        });
+
+        const savedCompany = await company.save();
+        console.log('Company stock data saved:', savedCompany);
+    } catch (error) {
+        console.error('Error saving company stock data:', error);
+    }
+}
 
   app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
