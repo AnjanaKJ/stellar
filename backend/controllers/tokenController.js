@@ -90,6 +90,11 @@ async function buyTokenWithBRIC(userEmail, tokenCode, amount, price) {
     if (!user) {
         throw new Error('User not found');
     }
+
+    if(userEmail!=req.user.email){
+            return res.status(404).json({ error: 'User invalid' });
+            }
+
     const userPublicKey = user.wallet.publicKey;
     const userSecretKey = user.wallet.secret;
 

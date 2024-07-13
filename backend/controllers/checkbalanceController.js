@@ -56,6 +56,10 @@ exports.getBricTokenBalance = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        if(email!=req.user.email){
+            return res.status(404).json({ error: 'User invalid' });
+            }
+
         const publicKey = user.wallet.publicKey;
 
         const bricBalance = await checkBricTokenBalance(publicKey);
@@ -71,6 +75,11 @@ exports.getXmlTokenBalance = async (req, res) => {
 
     try {
         const user = await User.findOne({ email });
+
+        if(email!=req.user.email){
+            return res.status(404).json({ error: 'User invalid' });
+            }
+
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }

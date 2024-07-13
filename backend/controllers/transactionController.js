@@ -8,6 +8,9 @@ exports.createTransaction = async (req, res) => {
     if (!senderEmail || !email || !amount) {
       return res.status(400).json({ error: 'Missing required parameters' });
     }
+    if(senderEmail!=req.user.email){
+            return res.status(404).json({ error: 'User invalid' });
+            }
 
     if (isNaN(amount) || parseFloat(amount) <= 0) {
       return res.status(400).json({ error: 'Invalid amount. Must be a positive number.' });

@@ -41,6 +41,10 @@ exports.buyStock = async (req, res) => {
             return res.status(400).json({ error: 'Invalid quantity. Must be a positive integer.' });
         }
 
+        if(email!=req.user.email){
+            return res.status(404).json({ error: 'User invalid' });
+            }
+
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -57,7 +61,7 @@ exports.buyStock = async (req, res) => {
         }
 
         const totalCostInBrics = stock.priceInBrics * quantity;
-        const receiverPublicKey = company.publicKey; // The public key of the company's wallet
+        const receiverPublicKey = company.publicKey;
         const userSecretKey = user.wallet.secret;
 
         // Establish a trustline if it doesn't exist
@@ -94,11 +98,9 @@ exports.buyStock = async (req, res) => {
             userAccount = await server.loadAccount(user.wallet.publicKey);
         }
 
-        // Perform payment using the updated performPayment function
         try {
-            await performPayment(userSecretKey, receiverPublicKey, 'SBOJXKZZGWHR5KVMLJ6XCG5L2KZTKPPZYHOW53B2MGXFEKDJDSIKVV5H',  totalCostInBrics.toString());
+            await performPayment(userSecretKey, receiverPublicKey, 'SBOJXKZZGWHR5KVMLJ6XCG5L2KZTKPPZYHOW53B2MGXFEKDJDSIKVV5H', totalCostInBrics.toString());
 
-            // Store the purchase in the database
             const purchase = new Purchase({
                 email,
                 companyId: company._id,

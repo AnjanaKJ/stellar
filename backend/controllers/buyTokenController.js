@@ -9,6 +9,9 @@ exports.buyToken = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
+        if(user!=req.user.email){
+            return res.status(404).json({ error: 'User invalid' });
+            }
 
         const userSecretKey = user.wallet.secret;
         if (!userSecretKey) {
