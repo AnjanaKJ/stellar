@@ -2,16 +2,14 @@ const User = require('../models/User');
 const { buyBRICToken } = require('../services/tokenService');
 
 exports.buyToken = async (req, res) => {
-    const { email, amount } = req.body;
+    const { amount } = req.body;
+    const email = req.user.email;
 
     try {
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        if(user!=req.user.email){
-            return res.status(404).json({ error: 'User invalid' });
-            }
 
         const userSecretKey = user.wallet.secret;
         if (!userSecretKey) {

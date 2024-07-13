@@ -2,7 +2,8 @@ const User = require('../models/User');
 const { performPayment } = require('../services/tokenService');
 
 exports.createTransaction = async (req, res) => {
-  const { senderEmail, email, amount } = req.body;
+  const { email, amount } = req.body;
+  const senderEmail = req.user.email;
 
   try {
     if (!senderEmail || !email || !amount) {

@@ -30,8 +30,8 @@ exports.getStocks = async (req, res) => {
 };
 
 exports.buyStock = async (req, res) => {
-    const { email, companyId, stockName, quantity } = req.body;
-
+    const { companyId, stockName, quantity } = req.body;
+   const email = req.user.email;
     try {
         if (!email || !companyId || !stockName || !quantity) {
             return res.status(400).json({ error: 'Missing required parameters' });
